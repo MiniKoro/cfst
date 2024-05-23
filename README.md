@@ -6,6 +6,12 @@ $env:GOOS = "linux"
 $env:GOARCH = "amd64"
 go build -o cfttask
 ```
+
+### 上传可执行文件到服务器 赋予可执行权限
+```shell
+chmod +x cfttask
+```
+
 ### 创建系统服务
 ### 在 /etc/systemd/system/ 目录下创建一个以 .service 结尾的服务文件（例如 cfttask.service
 ``` shell
@@ -30,10 +36,12 @@ WantedBy=multi-user.target
 ``` shell
 sudo systemctl enable cfttask.service  # 启用服务
 sudo systemctl start cfttask.service   # 启动服务
-sudo systemctl restart cfttask.service   # 重启服务
+sudo systemctl stop cfttask.service   # 停止服务
 sudo systemctl status cfttask.service  # 查看服务状态
 sudo journalctl -u cfttask.service     # 查看服务日志
 ```
+
+![img.png](img.png)
 
 ### 前端页面需要部署在nginx js中的请求地址需要修改为go web服务地址
 ``` html
