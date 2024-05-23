@@ -1,0 +1,4 @@
+cft:
+  root: /app/cloudflarespeedtest/
+  execute: CloudflareST
+  result: result.csv
