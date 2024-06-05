@@ -1,4 +1,5 @@
 ## 自动进行cloudflare优选ip 使用了大佬的脚本[CloudflareSpeedTest](https://github.com/XIU2/CloudflareSpeedTest)
+### 小小升级了一下做了个优选域名 自动更新域名解析记录
 ### 上班摸鱼写的无聊的小项目 懒得总是用电脑自己测 只是为了学习go语言
 ### windows下打linux可执行包 powershell中依次执行下面的命令
 ```shell

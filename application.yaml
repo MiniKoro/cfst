@@ -2,3 +2,25 @@ cft:
   root: /app/cloudflarespeedtest/
   execute: CloudflareST
   result: result.csv
+  email: cloudflare账户邮箱
+  key: Global API Key
+  analysis_name: 优选域名
+  analysis_type: A
+  url: https://api.cloudflare.com/client/v4/zones/域名ID/dns_records/解析记录ID
+# 172.66.43.232
+#  获取域名 ID
+#  curl -X GET "https://api.cloudflare.com/client/v4/zones" \
+#  -H "X-Auth-Email: 账号邮箱" \
+#  -H "X-Auth-Key: 前面获取的 API 令牌" \
+#  -H "Content-Type: application/json"
+#  获取域名解析记录 ID
+#  curl -X GET "https://api.cloudflare.com/client/v4/zones/域名ID/dns_records?page=1&per_page=20&order=type&direction=asc" \
+#  -H "X-Auth-Email: 账号邮箱" \
+#  -H "X-Auth-Key: 前面获取的 API 令牌" \
+#  -H "Content-Type: application/json"
+#  更新域名解析记录
+#  curl -X PUT "https://api.cloudflare.com/client/v4/zones/域名ID/dns_records/解析记录ID" \
+#  -H "X-Auth-Email: 账号邮箱" \
+#  -H "X-Auth-Key: 前面获取的 API 令牌" \
+#  -H "Content-Type: application/json" \
+#  --data '{"type":"A","name":"xxx.yyy.zzz","content":"最快 IP","ttl":1,"proxied":true}'

@@ -2,11 +2,13 @@ package scheduling
 
 import (
 	"bufio"
+	"bytes"
 	"cfst/core"
 	"encoding/csv"
 	"fmt"
 	"github.com/goccy/go-json"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 )
@@ -87,7 +89,6 @@ func ReadResult() string {
 	}
 
 	var results []SpeedTestResult
-
 	// 遍历 CSV 记录，跳过第一行表头
 	for _, record := range records[1:] {
 		result := SpeedTestResult{
@@ -100,11 +101,47 @@ func ReadResult() string {
 		}
 		results = append(results, result)
 	}
-
+	//将results[0]记录自动更新只cloudflare 域名dns记录
+	updateCfDns(results[0])
 	// 将结果转换为 JSON 格式
 	jsonData, err := json.Marshal(results)
 	if err != nil {
 		panic(err)
 	}
 	return string(jsonData)
+}
+
+type RequestCloudflareBody struct {
+	Type    string `json:"type"`
+	Name    string `json:"name"`
+	Content string `json:"content"`
+}
+
+func updateCfDns(result SpeedTestResult) {
+	ip := result.IPAddress
+	body := &RequestCloudflareBody{
+		Name:    core.Config.Cft.AnalysisName,
+		Type:    core.Config.Cft.AnalysisType,
+		Content: ip,
+	}
+	jsonBody, err := json.Marshal(body)
+	if err != nil {
+		fmt.Println("Error marshaling body:", err)
+		return
+	}
+	req, err := http.NewRequest("PUT", core.Config.Cft.Url, bytes.NewBuffer(jsonBody))
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		return
+	}
+	req.Header.Set("X-Auth-Email", core.Config.Cft.Email)
+	req.Header.Set("X-Auth-Key", core.Config.Cft.Key)
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Error sending request:", err)
+		return
+	}
+	defer resp.Body.Close()
 }
