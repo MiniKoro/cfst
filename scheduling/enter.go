@@ -12,6 +12,6 @@ func CronInit() {
 		logrus.Error(err.Error())
 	}
 	Cron := cron.New(cron.WithSeconds(), cron.WithLocation(timezone))
-	_, _ = Cron.AddFunc("0 */60 * * * *", RunCftTask)
+	_, _ = Cron.AddFunc("0 */10 * * * *", RunCftTask)
 	Cron.Start()
 }

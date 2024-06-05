@@ -46,6 +46,8 @@ func RunCftTask() {
 			log.Printf("脚本执行失败: %v", err)
 		} else {
 			log.Println("脚本执行成功")
+			results := ReadResults()
+			updateCfDns(results[0])
 		}
 	}()
 	// 在 Goroutine 中执行脚本
@@ -58,6 +60,7 @@ func RunCftTask() {
 	//		log.Println("脚本执行成功")
 	//	}
 	//}()
+	//将results[0]记录自动更新只cloudflare 域名dns记录
 }
 
 type SpeedTestResult struct {
@@ -67,6 +70,41 @@ type SpeedTestResult struct {
 	PacketLossRate string `json:"packet_loss_rate"`
 	AverageLatency string `json:"average_latency"`
 	DownloadSpeed  string `json:"download_speed"`
+}
+
+func ReadResults() []SpeedTestResult {
+	resultCsv := fmt.Sprintf("%s%s", core.Config.Cft.Root, core.Config.Cft.Result)
+	file, err := os.Open(resultCsv)
+	if err != nil {
+		panic(err)
+	}
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+
+		}
+	}(file)
+
+	reader := csv.NewReader(file)
+	records, err := reader.ReadAll()
+	if err != nil {
+		panic(err)
+	}
+
+	var results []SpeedTestResult
+	// 遍历 CSV 记录，跳过第一行表头
+	for _, record := range records[1:] {
+		result := SpeedTestResult{
+			IPAddress:      record[0],
+			Sent:           record[1],
+			Received:       record[2],
+			PacketLossRate: record[3],
+			AverageLatency: record[4],
+			DownloadSpeed:  record[5],
+		}
+		results = append(results, result)
+	}
+	return results
 }
 
 func ReadResult() string {
@@ -101,8 +139,6 @@ func ReadResult() string {
 		}
 		results = append(results, result)
 	}
-	//将results[0]记录自动更新只cloudflare 域名dns记录
-	updateCfDns(results[0])
 	// 将结果转换为 JSON 格式
 	jsonData, err := json.Marshal(results)
 	if err != nil {
@@ -118,6 +154,7 @@ type RequestCloudflareBody struct {
 }
 
 func updateCfDns(result SpeedTestResult) {
+	log.Println("优选域名DNS记录更新")
 	ip := result.IPAddress
 	body := &RequestCloudflareBody{
 		Name:    core.Config.Cft.AnalysisName,
@@ -143,5 +180,6 @@ func updateCfDns(result SpeedTestResult) {
 		fmt.Println("Error sending request:", err)
 		return
 	}
+	log.Println("优选域名DNS更新完成")
 	defer resp.Body.Close()
 }

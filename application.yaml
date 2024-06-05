@@ -2,7 +2,7 @@ cft:
   root: /app/cloudflarespeedtest/
   execute: CloudflareST
   result: result.csv
-  email: cloudflare账户邮箱
+  email: cf账户邮箱
   key: Global API Key
   analysis_name: 优选域名
   analysis_type: A
